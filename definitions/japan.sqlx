@@ -1,0 +1,23 @@
+config {
+  type: "view",
+  schema: "covid19",
+  name: "japan",
+  description: "日本の感染状況",
+  columns: {
+    date: "日",
+    new_confirmed_count: "新規感染者数",
+    new_deceased_count: "新規死者数"
+  }
+}
+
+SELECT
+  date,
+  SUM(new_confirmed) AS new_confirmed_count,
+  SUM(new_deceased) AS new_deceased_count
+FROM
+  ${ref("covid19_open_data")}
+WHERE
+  country_code = "JP"
+  AND location_key = "JP" -- 日本全体はJP
+GROUP BY
+  date

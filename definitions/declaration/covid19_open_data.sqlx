@@ -1,0 +1,6 @@
+config {
+  type: "declaration",
+  database: "bigquery-public-data",
+  schema: "covid19_open_data",
+  name: "covid19_open_data"
+}
