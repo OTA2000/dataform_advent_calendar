@@ -2,7 +2,7 @@ config {
   type: "table",
   schema: "covid19",
   name: "japan_forecast_comparison",
-  description: "予実比較(日別)",
+  description: "予測値評価(日別)",
   columns: {
     date: "日",
     prefecture_name_kanji: "都道府県名",
