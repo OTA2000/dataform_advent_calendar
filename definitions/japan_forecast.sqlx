@@ -13,7 +13,8 @@ config {
   },
   bigquery: {
     partitionBy: "prediction_date"
-  }
+  },
+  tags: ["daily"]
 }
 
 # standardSQL

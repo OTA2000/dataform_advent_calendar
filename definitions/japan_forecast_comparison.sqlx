@@ -8,9 +8,13 @@ config {
     prefecture_name_kanji: "都道府県名",
     forecast_new_confirmed: "新規感染者数(予測値)",
     new_confirmed: "新規感染者数",
+    new_confirmed_rmse: "新規感染者数予測誤差",
     forecast_new_deaths: "新規死者数(予測値)",
-    new_deaths: "新規死者数"
-  }
+    new_deaths: "新規死者数",
+    new_deaths_rmse: "新規死者数予測誤差",
+    latest_forecast_date: "最新の予測実施日"
+  },
+  tags: ["daily"]
 }
 
 # standardSQL
@@ -23,23 +27,32 @@ WITH t AS (
       PARTITION BY f.prefecture_code,
       f.prediction_date
     ) AS latest_forecast_date,
-    f.new_confirmed AS forecast_new_confirmed,
     j.new_confirmed,
-    f.new_deaths AS forecast_new_deaths,
+    f.new_confirmed AS forecast_new_confirmed,
+    SQRT(AVG(POWER(j.new_confirmed - f.new_confirmed, 2))) AS new_confirmed_rmse,
     j.new_deaths,
+    f.new_deaths AS forecast_new_deaths,
+    SQRT(AVG(POWER(j.new_deaths - f.new_deaths, 2))) AS new_deaths_rmse,
   FROM
     ${ref("japan_forecast")} f
     LEFT JOIN ${ref("japan_actual")} j ON f.prediction_date = j.date
     AND f.prefecture_code = j.prefecture_code
   WHERE
     f.prediction_date >= "2020-12-21"
+  GROUP BY
+    f.prefecture_name_kanji, f.prediction_date, f.forecast_date, f.prefecture_code, forecast_new_confirmed, new_confirmed, forecast_new_deaths, new_deaths
 )
 SELECT
   date,
   prefecture_name_kanji,
-  forecast_new_confirmed,
   new_confirmed,
+  forecast_new_confirmed,
+  new_confirmed_rmse,
+  new_deaths,
   forecast_new_deaths,
-  new_deaths
+  new_deaths_rmse,
+  latest_forecast_date
 FROM
   t
+WHERE
+  forecast_date = latest_forecast_date
