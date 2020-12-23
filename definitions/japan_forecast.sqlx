@@ -1,0 +1,29 @@
+config {
+  type: "incremental",
+  schema: "covid19",
+  name: "japan_forecast",
+  description: "都道府県別感染状況予測(日別)",
+  columns: {
+    prefecture_code: "都道府県コード",
+    prefecture_name_kanji: "都道府県名",
+    forecast_date: "予測実施日",
+    prediction_date: "予測対象日",
+    new_confirmed: "新規感染者数予測",
+    new_deaths: "新規死者数予測"
+  },
+  bigquery: {
+    partitionBy: "prediction_date"
+  }
+}
+
+# standardSQL
+SELECT
+  prefecture_code,
+  prefecture_name_kanji,
+  forecast_date,  -- 予測実施日
+  prediction_date,  -- 予測対象日
+  new_confirmed,
+  new_deaths,
+FROM
+  ${ref("japan_prefecture_28d")}
+${ when(incremental(), `WHERE forecast_date > (SELECT MAX(forecast_date) FROM ${self()})`) }

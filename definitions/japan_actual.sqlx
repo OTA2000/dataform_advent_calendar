@@ -1,0 +1,26 @@
+config {
+  type: "view",
+  schema: "covid19",
+  name: "japan_actual",
+  description: "都道府県別感染状況(日別)",
+  columns: {
+    date: "日",
+    prefecture_code: "都道府県コード",
+    new_confirmed: "新規感染者数",
+    new_deaths: "新規死者数"
+  }
+}
+
+# standardSQL
+SELECT
+  date,
+  REPLACE(location_key, "_", "-") AS prefecture_code,
+  SUM(new_confirmed) AS new_confirmed,
+  SUM(new_deceased) AS new_deaths
+FROM
+  ${ref("covid19_open_data")}
+WHERE
+  country_code = "JP"
+  AND location_key <> "JP"
+GROUP BY
+  date, prefecture_code
